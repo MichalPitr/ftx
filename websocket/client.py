@@ -13,7 +13,7 @@ from ftx.websocket.websocket_manager import WebsocketManager
 class FtxWebsocketClient(WebsocketManager):
     _ENDPOINT = 'wss://ftx.com/ws/'
 
-    def __init__(self, api_key, api_secret) -> None:
+    def __init__(self, api_key='', api_secret='') -> None:
         super().__init__()
         self._trades: DefaultDict[str, Deque] = defaultdict(lambda: deque([], maxlen=10000))
         self._fills: Deque = deque([], maxlen=10000)
@@ -93,6 +93,7 @@ class FtxWebsocketClient(WebsocketManager):
             self._subscribe(subscription)
         if self._orderbook_timestamps[market] == 0:
             self.wait_for_orderbook_update(market, 5)
+
         return {
             side: sorted(
                 [(price, quantity) for price, quantity in list(self._orderbooks[market][side].items())
@@ -133,6 +134,7 @@ class FtxWebsocketClient(WebsocketManager):
                 else:
                     del book[price]
             self._orderbook_timestamps[market] = data['time']
+
         checksum = data['checksum']
         orderbook = self.get_orderbook(market)
         checksum_data = [
