@@ -21,6 +21,8 @@ class FtxWebsocketClient(WebsocketManager):
         self._api_secret = api_secret
         self._orderbook_update_events: DefaultDict[str, Event] = defaultdict(Event)
         self._reset_data()
+        self.counter = 0
+        self.start_time = time.time()
 
     def _on_open(self, ws):
         self._reset_data()
@@ -119,11 +121,18 @@ class FtxWebsocketClient(WebsocketManager):
         return self._tickers[market]
 
     def _handle_orderbook_message(self, message: Dict) -> None:
+        # self.counter += 1
+        # if self.counter % 10:
+        #     print("10 orderbooks took: ", time.time() - self.start_time)
+        #     self.start_time = time.time()
         market = message['market']
         subscription = {'channel': 'orderbook', 'market': market}
         if subscription not in self._subscriptions:
             return
         data = message['data']
+        if time.time() - self.start_time >= 1:
+            print(f"handle_orderbook time diff = {time.time() - data['time']}")
+            self.start_time = time.time()
         if data['action'] == 'partial':
             self._reset_orderbook(market)
         for side in {'bids', 'asks'}:
