@@ -130,9 +130,11 @@ class FtxWebsocketClient(WebsocketManager):
         if subscription not in self._subscriptions:
             return
         data = message['data']
+
         if time.time() - self.start_time >= 1:
-            print(f"handle_orderbook time diff = {time.time() - data['time']}")
             self.start_time = time.time()
+            print(f"handle_orderbook time diff = {time.time() - data['time']}")  # TODO REMOVE
+
         if data['action'] == 'partial':
             self._reset_orderbook(market)
         for side in {'bids', 'asks'}:
@@ -177,6 +179,7 @@ class FtxWebsocketClient(WebsocketManager):
     def _on_message(self, ws, raw_message: str) -> None:
         message = json.loads(raw_message)
         message_type = message['type']
+
         if message_type in {'subscribed', 'unsubscribed'}:
             return
         elif message_type == 'info':
