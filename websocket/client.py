@@ -121,10 +121,7 @@ class FtxWebsocketClient(WebsocketManager):
         return self._tickers[market]
 
     def _handle_orderbook_message(self, message: Dict) -> None:
-        # self.counter += 1
-        # if self.counter % 10:
-        #     print("10 orderbooks took: ", time.time() - self.start_time)
-        #     self.start_time = time.time()
+
         market = message['market']
         subscription = {'channel': 'orderbook', 'market': market}
         if subscription not in self._subscriptions:
