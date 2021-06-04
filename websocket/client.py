@@ -128,9 +128,9 @@ class FtxWebsocketClient(WebsocketManager):
             return
         data = message['data']
 
-        if time.time() - self.start_time >= 1:
-            self.start_time = time.time()
-            print(f"handle_orderbook time diff = {time.time() - data['time']}")  # TODO REMOVE
+        # if time.time() - self.start_time >= 1:
+        #     self.start_time = time.time()
+        #     print(f"handle_orderbook time diff = {time.time() - data['time']}")  # TODO REMOVE
 
         if data['action'] == 'partial':
             self._reset_orderbook(market)
