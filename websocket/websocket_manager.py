@@ -84,6 +84,7 @@ class WebsocketManager:
         self._reconnect(ws)
 
     def _on_error(self, ws, error):
+        print("FTX error")
         self._reconnect(ws)
 
     def reconnect(self) -> None:
