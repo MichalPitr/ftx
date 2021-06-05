@@ -7,7 +7,7 @@ from itertools import zip_longest
 from typing import DefaultDict, Deque, List, Dict, Tuple, Optional
 from gevent.event import Event
 
-from ftx.websocket.websocket_manager import WebsocketManager
+from arbitrageEngine.ftx.websocket.websocket_manager import WebsocketManager
 
 
 class FtxWebsocketClient(WebsocketManager):
@@ -121,16 +121,11 @@ class FtxWebsocketClient(WebsocketManager):
         return self._tickers[market]
 
     def _handle_orderbook_message(self, message: Dict) -> None:
-
         market = message['market']
         subscription = {'channel': 'orderbook', 'market': market}
         if subscription not in self._subscriptions:
             return
         data = message['data']
-
-        # if time.time() - self.start_time >= 1:
-        #     self.start_time = time.time()
-        #     print(f"handle_orderbook time diff = {time.time() - data['time']}")  # TODO REMOVE
 
         if data['action'] == 'partial':
             self._reset_orderbook(market)
@@ -142,6 +137,9 @@ class FtxWebsocketClient(WebsocketManager):
                 else:
                     del book[price]
             self._orderbook_timestamps[market] = data['time']
+
+        if time.time() - self._orderbook_timestamps[market] >= 0.5:
+            print("DELAYED market", market, time.time() - self._orderbook_timestamps[market])
 
         checksum = data['checksum']
         orderbook = self.get_orderbook(market)
