@@ -1,4 +1,5 @@
 import json
+import logging
 import time
 from threading import Thread, Lock
 
@@ -84,7 +85,7 @@ class WebsocketManager:
         self._reconnect(ws)
 
     def _on_error(self, ws, error):
-        print("FTX error")
+        logging.error(f"ftx error: {error}")
         self._reconnect(ws)
 
     def reconnect(self) -> None:

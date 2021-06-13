@@ -1,7 +1,9 @@
 import hmac
 import json
 import time
+import logging
 import zlib
+
 from collections import defaultdict, deque
 from itertools import zip_longest
 from typing import DefaultDict, Deque, List, Dict, Tuple, Optional
@@ -9,6 +11,7 @@ from gevent.event import Event
 
 from ftx.websocket.websocket_manager import WebsocketManager
 
+logger = logging.getLogger(__name__)
 
 class FtxWebsocketClient(WebsocketManager):
     _ENDPOINT = 'wss://ftx.com/ws/'
@@ -137,9 +140,9 @@ class FtxWebsocketClient(WebsocketManager):
                 else:
                     del book[price]
             self._orderbook_timestamps[market] = data['time']
-
-        if time.time() - self._orderbook_timestamps[market] >= 0.5:
-            print("DELAYED market", market, time.time() - self._orderbook_timestamps[market])
+        delta = time.time() - self._orderbook_timestamps[market]
+        if delta >= 1.0:
+            logger.warning(f"DELAYED {market} {delta:.3f} {data['time']}")
 
         checksum = data['checksum']
         orderbook = self.get_orderbook(market)
