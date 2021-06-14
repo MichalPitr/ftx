@@ -13,6 +13,7 @@ from ftx.websocket.websocket_manager import WebsocketManager
 
 logger = logging.getLogger(__name__)
 
+
 class FtxWebsocketClient(WebsocketManager):
     _ENDPOINT = 'wss://ftx.com/ws/'
 
@@ -182,8 +183,10 @@ class FtxWebsocketClient(WebsocketManager):
             return
         elif message_type == 'info':
             if message['code'] == 20001:
+                logger.error('received message.code 20001, reconnecting')
                 return self.reconnect()
         elif message_type == 'error':
+            logger.exception(message)
             raise Exception(message)
         channel = message['channel']
 

@@ -54,6 +54,7 @@ class WebsocketManager:
                 try:
                     f(ws, *args, **kwargs)
                 except Exception as e:
+                    logging.exception(e)
                     raise Exception(f'Error running websocket callback: {e}')
         return wrapped_f
 
@@ -61,6 +62,7 @@ class WebsocketManager:
         try:
             ws.run_forever()
         except Exception as e:
+            logging.exception(e)
             raise Exception(f'Unexpected error while running websocket: {e}')
         finally:
             self._reconnect(ws)
