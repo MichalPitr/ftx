@@ -3,7 +3,26 @@ import logging
 import time
 from threading import Thread, Lock
 
-from websocket import WebSocketApp
+from websocket import WebSocketApp, enableTrace
+
+
+# logger = logging.getLogger(__name__)
+
+# file_handler = logging.FileHandler('ftx_ws_log.log', mode='w')
+# formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+# file_handler.setFormatter(formatter)
+# file_handler.setLevel(logging.DEBUG)
+#
+# console = logging.StreamHandler()
+# console.setLevel(logging.INFO)
+#
+# console.setFormatter(formatter)
+# logging.getLogger('').addHandler(console)
+#
+# logging.warning('Testing if this gets added to the root loger')
+# # logger.addHandler(handler)
+
+enableTrace(True)
 
 
 class WebsocketManager:
@@ -27,7 +46,9 @@ class WebsocketManager:
         self.send(json.dumps(message))
 
     def _connect(self):
-        assert not self.ws, "ws should be closed before attempting to connect"
+        if not self.ws:
+            logging.error("ws should be closed before attempting to connect")
+            assert not self.ws, "ws should be closed before attempting to connect"
 
         self.ws = WebSocketApp(
             self._get_url(),
@@ -44,6 +65,7 @@ class WebsocketManager:
         ts = time.time()
         while self.ws and (not self.ws.sock or not self.ws.sock.connected):
             if time.time() - ts > self._CONNECT_TIMEOUT_S:
+                logging.warning('failed to connect to a websocket, attempt timed-out')
                 self.ws = None
                 return
             time.sleep(0.1)
@@ -68,7 +90,10 @@ class WebsocketManager:
             self._reconnect(ws)
 
     def _reconnect(self, ws):
-        assert ws is not None, '_reconnect should only be called with an existing ws'
+        if ws is not None:
+            logging.error('_reconnect should only be called with an existing ws')
+            assert ws is not None, '_reconnect should only be called with an existing ws'
+
         if ws is self.ws:
             self.ws = None
             ws.close()
